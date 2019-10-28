@@ -1,179 +1,188 @@
-import { test, moduleForComponent } from 'ember-qunit';
+import PromiseProxyMixin from '@ember/object/promise-proxy-mixin';
+import ObjectProxy from '@ember/object/proxy';
+import { later } from '@ember/runloop';
+import { defer, all } from 'rsvp';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render, find, findAll } from '@ember/test-helpers';
 import afterRender from 'dummy/tests/helpers/after-render';
 import hbs from 'htmlbars-inline-precompile';
-import Ember from 'ember';
 
-moduleForComponent('ui-accordion', 'Integration | Helper | map value', {
-  integration: true
-});
+module('Integration | Helper | map value', function(hooks) {
+  setupRenderingTest(hooks);
 
-test('renders value passed in on non-promise', function (assert) {
-  this.set('value', 42);
-  this.set('mapper', function(value) { return value; });
-  this.set('text', 'Forty Two');
+  test('renders value passed in on non-promise', async function(assert) {
+    this.set('value', 42);
+    this.set('mapper', function(value) { return value; });
+    this.set('text', 'Forty Two');
 
-  this.render(hbs`
-    <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
-  `);
+    await render(hbs`
+      <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
+    `);
 
-  assert.equal(this.$('.item').attr('data-value'), '42');
-  assert.equal(this.$('.item').text().trim(), 'Forty Two');
-});
-
-test('when unresolved renders is passed in, null is rendered', function (assert) {
-  let deferred = Ember.RSVP.defer();
-
-  this.set('value', deferred.promise);
-  this.set('mapper', function(value) { return value; });
-  this.set('text', 'Forty Two');
-
-  this.render(hbs`
-    <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
-  `);
-
-  assert.equal(this.$('.item').attr('data-value'), undefined);
-  assert.equal(this.$('.item').text().trim(), 'Forty Two');
-
-  deferred.resolve('LIFE');
-
-  return afterRender(deferred.promise).then(() => {
-    assert.equal(this.$('.item').attr('data-value').trim(), 'LIFE', 'data value is updated to correct value');
+    assert.dom('.item').hasAttribute('data-value', '42');
+    assert.dom('.item').hasText('Forty Two');
   });
-});
 
-test('when unresolved renders is passed in, null is rendered', function (assert) {
-  let deferred1 = Ember.RSVP.defer();
-  let deferred2 = Ember.RSVP.defer();
-  let deferred3 = Ember.RSVP.defer();
+  test('when unresolved renders is passed in, null is rendered', async function(assert) {
+    let deferred = defer();
 
-  this.set('value', deferred3.promise);
-  this.set('mapper', function(value) { return value; });
-  this.set('text', 'Forty Two');
+    this.set('value', deferred.promise);
+    this.set('mapper', function(value) { return value; });
+    this.set('text', 'Forty Two');
 
-  this.render(hbs`
-    <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
-  `);
+    await render(hbs`
+      <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
+    `);
 
-  assert.equal(this.$('.item').attr('data-value'), undefined);
-  assert.equal(this.$('.item').text().trim(), 'Forty Two');
+    assert.dom('.item').hasAttribute('data-value', undefined);
+    assert.dom('.item').hasText('Forty Two');
 
-  deferred1.resolve('number 1');
+    deferred.resolve('LIFE');
 
-  Ember.run.later(deferred2, 'resolve', 'number 2', 200);
-  Ember.run.later(deferred3, 'resolve', 'number 3', 500);
-
-  this.set('value', deferred2.promise);
-  this.set('value', deferred3.promise);
-
-  return afterRender(Ember.RSVP.all([deferred2.promise, deferred3.promise])).then(() => {
-    assert.equal(this.$('.item').attr('data-value').trim(), 'number 3', 'data value is updated to correct value');
+    return afterRender(deferred.promise).then(() => {
+      assert.equal(find('.item').getAttribute('data-value').trim(), 'LIFE', 'data value is updated to correct value');
+    });
   });
-});
 
-test('renders null until the promise is rejected', function (assert) {
-  let deferred = Ember.RSVP.defer();
+  test('when unresolved renders is passed in, null is rendered', async function(assert) {
+    let deferred1 = defer();
+    let deferred2 = defer();
+    let deferred3 = defer();
 
-  this.set('value', deferred.promise);
-  this.set('mapper', function(value) { return value; });
-  this.set('text', 'Forty Two');
+    this.set('value', deferred3.promise);
+    this.set('mapper', function(value) { return value; });
+    this.set('text', 'Forty Two');
 
-  this.render(hbs`
-    <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
-  `);
+    await render(hbs`
+      <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
+    `);
 
-  assert.equal(this.$('.item').attr('data-value'), undefined);
+    assert.dom('.item').hasAttribute('data-value', undefined);
+    assert.dom('.item').hasText('Forty Two');
 
-  deferred.reject(new Error('oops'));
+    deferred1.resolve('number 1');
 
-  return afterRender(deferred.promise).then(() => {
-    assert.equal(this.$('.item').attr('data-value'), undefined, 'value of re-render does not reveal reason for rejection');
-  });
-});
+    later(deferred2, 'resolve', 'number 2', 200);
+    later(deferred3, 'resolve', 'number 3', 500);
 
-test('changing the promise changes the eventually rendered value', function (assert) {
-  let deferred1 = Ember.RSVP.defer();
-  let deferred2 = Ember.RSVP.defer();
-
-  this.set('value', deferred1.promise);
-  this.set('mapper', function(value) { return value; });
-  this.set('text', 'Forty Two');
-
-  this.render(hbs`
-    <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
-  `);
-
-  const deferred1Text = 'hi';
-  const deferred2Text = 'bye';
-
-  deferred1.resolve(deferred1Text);
-
-  return afterRender(deferred1.promise).then(() => {
-    deferred2.resolve(deferred2Text);
     this.set('value', deferred2.promise);
-    return afterRender(deferred2.promise);
-  }).then(() => {
-    assert.equal(this.$('.item').attr('data-value'), deferred2Text, 'value updates when the promise changes');
-  });
-});
+    this.set('value', deferred3.promise);
 
-test('switching from promise to non-promise correctly ignores promise resolution', function (assert) {
-  let deferred = Ember.RSVP.defer();
-
-  this.set('value', deferred.promise);
-  this.set('mapper', function(value) { return value; });
-  this.set('text', 'Forty Two');
-
-  this.render(hbs`
-    <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
-  `);
-
-  this.set('value', 'iAmConstant');
-  assert.equal(this.$('.item').attr('data-value'), 'iAmConstant');
-  deferred.resolve('promiseFinished');
-
-  return afterRender(deferred.promise).then(() => {
-    assert.equal(this.$('.item').attr('data-value'), 'iAmConstant', 'ignores a promise that has been replaced');
-  });
-});
-
-test('promises that get wrapped by RSVP.Promise.resolve still work correctly', function(assert) {
-  let deferred = Ember.RSVP.defer();
-  let ObjectPromiseProxy = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
-  let proxy = ObjectPromiseProxy.create({
-    promise: deferred.promise
+    return afterRender(all([deferred2.promise, deferred3.promise])).then(() => {
+      assert.equal(find('.item').getAttribute('data-value').trim(), 'number 3', 'data value is updated to correct value');
+    });
   });
 
-  this.set('value', proxy);
-  this.set('mapper', function(value) { return value; });
-  this.set('text', 'Forty Two');
+  test('renders null until the promise is rejected', async function(assert) {
+    let deferred = defer();
 
-  this.render(hbs`
-    <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
-  `);
-  deferred.resolve('hasAValue');
-  return afterRender(deferred.promise).then(() => {
-    assert.equal(this.$('.item').attr('data-value'), 'hasAValue');
+    this.set('value', deferred.promise);
+    this.set('mapper', function(value) { return value; });
+    this.set('text', 'Forty Two');
+
+    await render(hbs`
+      <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
+    `);
+
+    assert.dom('.item').hasAttribute('data-value', undefined);
+
+    deferred.reject(new Error('oops'));
+
+    return afterRender(deferred.promise).then(() => {
+      assert.dom('.item').hasAttribute(
+        'data-value',
+        undefined,
+        'value of re-render does not reveal reason for rejection'
+      );
+    });
   });
-});
 
-test('renders previously fullfilled promise right away', function (assert) {
-  const text = 'yass!';
+  test('changing the promise changes the eventually rendered value', async function(assert) {
+    let deferred1 = defer();
+    let deferred2 = defer();
 
-  let deferred = Ember.RSVP.defer();
-  deferred.resolve(text);
+    this.set('value', deferred1.promise);
+    this.set('mapper', function(value) { return value; });
+    this.set('text', 'Forty Two');
 
-  this.set('value', deferred.promise);
-  this.set('mapper', function(value) { return value; });
-  this.set('text', 'Forty Two');
+    await render(hbs`
+      <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
+    `);
 
-  this.render(hbs`
-    <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
-  `);
+    const deferred1Text = 'hi';
+    const deferred2Text = 'bye';
 
-  assert.equal(this.$('.item').length, 1);
-  assert.equal(this.$('.item').attr('data-value'), text);
+    deferred1.resolve(deferred1Text);
 
-  return afterRender(deferred.promise).then(() => {
-    assert.equal(this.$('.item').attr('data-value'), text, 're-renders when the promise is resolved');
+    return afterRender(deferred1.promise).then(() => {
+      deferred2.resolve(deferred2Text);
+      this.set('value', deferred2.promise);
+      return afterRender(deferred2.promise);
+    }).then(() => {
+      assert.dom('.item').hasAttribute('data-value', deferred2Text, 'value updates when the promise changes');
+    });
+  });
+
+  test('switching from promise to non-promise correctly ignores promise resolution', async function(assert) {
+    let deferred = defer();
+
+    this.set('value', deferred.promise);
+    this.set('mapper', function(value) { return value; });
+    this.set('text', 'Forty Two');
+
+    await render(hbs`
+      <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
+    `);
+
+    this.set('value', 'iAmConstant');
+    assert.dom('.item').hasAttribute('data-value', 'iAmConstant');
+    deferred.resolve('promiseFinished');
+
+    return afterRender(deferred.promise).then(() => {
+      assert.dom('.item').hasAttribute('data-value', 'iAmConstant', 'ignores a promise that has been replaced');
+    });
+  });
+
+  test('promises that get wrapped by RSVP.Promise.resolve still work correctly', async function(assert) {
+    let deferred = defer();
+    let ObjectPromiseProxy = ObjectProxy.extend(PromiseProxyMixin);
+    let proxy = ObjectPromiseProxy.create({
+      promise: deferred.promise
+    });
+
+    this.set('value', proxy);
+    this.set('mapper', function(value) { return value; });
+    this.set('text', 'Forty Two');
+
+    await render(hbs`
+      <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
+    `);
+    deferred.resolve('hasAValue');
+    return afterRender(deferred.promise).then(() => {
+      assert.dom('.item').hasAttribute('data-value', 'hasAValue');
+    });
+  });
+
+  test('renders previously fullfilled promise right away', async function(assert) {
+    const text = 'yass!';
+
+    let deferred = defer();
+    deferred.resolve(text);
+
+    this.set('value', deferred.promise);
+    this.set('mapper', function(value) { return value; });
+    this.set('text', 'Forty Two');
+
+    await render(hbs`
+      <div class="item" data-value={{map-value mapper value}}>{{text}}</div>
+    `);
+
+    assert.dom('.item').exists({ count: 1 });
+    assert.dom('.item').hasAttribute('data-value', text);
+
+    return afterRender(deferred.promise).then(() => {
+      assert.dom('.item').hasAttribute('data-value', text, 're-renders when the promise is resolved');
+    });
   });
 });
