@@ -3,7 +3,7 @@ import BaseMixin from 'semantic-ui-ember/mixins/base';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render } from '@ember/test-helpers';
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 
 let baseComponent = Component.extend(BaseMixin, {
   module: 'test',

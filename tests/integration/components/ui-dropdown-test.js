@@ -8,7 +8,7 @@ import $ from 'jquery';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
 import { render, settled, click, find, findAll } from '@ember/test-helpers';
-import hbs from 'htmlbars-inline-precompile';
+import { hbs } from 'ember-cli-htmlbars';
 import afterRender from 'dummy/tests/helpers/after-render';
 
 module('Integration | Component | ui dropdown', function(hooks) {
