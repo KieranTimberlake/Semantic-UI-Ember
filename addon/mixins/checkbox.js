@@ -1,6 +1,7 @@
 import { getOwner } from '@ember/application';
 import Mixin from '@ember/object/mixin';
 import Base from './base';
+import jQuery from 'jquery';
 
 /*
  * Checkbox Component Mixin
@@ -21,7 +22,7 @@ var CheckboxMixin = Mixin.create(Base, {
       settings.onChange = this.get('_onChange');
     }
     if (this._hasOwnProperty(this.attrs, 'readonly') || this.get('readonly') != null) {
-      this.$().toggleClass('read-only', this.get('readonly'));
+      jQuery(this.element).toggleClass('read-only', this.get('readonly'));
     }
   },
 
@@ -84,7 +85,7 @@ var CheckboxMixin = Mixin.create(Base, {
     // Handle readonly
     if (attrName === 'readonly') {
       // We need to add a class verses updating the property, since semantic is caching the value internall
-      return this.$().toggleClass('read-only', attrValue);
+      return jQuery(this.element).toggleClass('read-only', attrValue);
     }
     // Default
     return this._super(...arguments);

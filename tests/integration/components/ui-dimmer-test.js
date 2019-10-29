@@ -1,7 +1,9 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { render, click, findAll } from '@ember/test-helpers';
+import { render, click } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+
+import jQuery from 'jquery';
 
 module('Integration | Component | ui dimmer', function(hooks) {
   setupRenderingTest(hooks);
@@ -56,7 +58,7 @@ module('Integration | Component | ui dimmer', function(hooks) {
       {{/ui-dimmer}}
     `);
 
-    assert.equal(this.$().children('.ui.dimmer').length, 0, "UI Dimmer was found as a direct child");
+    assert.equal(jQuery(this.element).children('.ui.dimmer').length, 0, "UI Dimmer was found as a direct child");
     assert.dom('.ui.segment .ui.dimmer').exists({ count: 1 }, "UI Dimmer was not found under segment");
     await click();
 
@@ -87,7 +89,7 @@ module('Integration | Component | ui dimmer', function(hooks) {
       {{/ui-dimmer}}
     `);
 
-    assert.equal(this.$().children('.ui.dimmer').length, 0, "UI Dimmer was found as a direct child");
+    assert.equal(jQuery(this.element).children('.ui.dimmer').length, 0, "UI Dimmer was found as a direct child");
     assert.dom('.ui.segment .ui.dimmer').exists({ count: 1 }, "UI Dimmer was not found under segment");
     await click('[data-id=show]');
 

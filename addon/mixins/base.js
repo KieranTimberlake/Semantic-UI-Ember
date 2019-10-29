@@ -8,7 +8,7 @@ import { isBlank, isPresent, isEqual } from '@ember/utils';
 import Mixin from '@ember/object/mixin';
 import Ember from 'ember';
 import Semantic from '../semantic';
-import $ from 'jquery';
+import jQuery from 'jquery';
 
 const EMBER_ATTRS = ['class', 'classNameBindings', 'classNames', 'tagName'];
 const HTML_ATTRS = ['id', 'name', 'readonly', 'autofocus', 'tabindex', 'title'];
@@ -97,9 +97,9 @@ Semantic.BaseMixin = Mixin.create({
 
   getSemanticScope() {
     if (isPresent(this.get('onElement'))) {
-      return this.$(this.get('onElement'));
+      return jQuery(this.element).find(this.get('onElement'));
     }
-    return this.$();
+    return jQuery(this.element);
   },
 
   getSemanticModuleName() {
@@ -125,7 +125,7 @@ Semantic.BaseMixin = Mixin.create({
       return;
     }
     let moduleName = this.getSemanticModuleName();
-    return $.fn[moduleName];
+    return jQuery.fn[moduleName];
   },
 
   willInitSemantic(settings) { // eslint-disable-line no-unused-vars

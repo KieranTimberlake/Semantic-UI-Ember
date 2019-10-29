@@ -4,7 +4,7 @@ import { later } from '@ember/runloop';
 import { defer, all } from 'rsvp';
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { render, find, findAll } from '@ember/test-helpers';
+import { render, find } from '@ember/test-helpers';
 import afterRender from 'dummy/tests/helpers/after-render';
 import { hbs } from 'ember-cli-htmlbars';
 
