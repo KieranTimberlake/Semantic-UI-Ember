@@ -29,7 +29,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/Semantic-Org/Semantic-UI-Ember.git"
+    "url": "git://github.com/KieranTimberlake/Semantic-UI-Ember.git"
   },
   "scripts": {
     "build": "ember build",
