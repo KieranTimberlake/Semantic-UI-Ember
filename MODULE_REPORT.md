@@ -3,10 +3,10 @@
 
 **Global**: `Ember.Logger`
 
-**Location**: `addon\components\ui-radio.js` at line 20
+**Location**: `addon\components\ui-radio.js` at line 23
 
 ```js
-    if (Ember.isBlank(this.get('name'))) {
+    if (isBlank(this.get('name'))) {
       this.set('name', 'default');
       Ember.Logger.warn("The required component parameter of 'name' was not passed into the ui-radio component");
     }
@@ -17,7 +17,7 @@
 
 **Global**: `Ember.Logger`
 
-**Location**: `addon\components\ui-dropdown.js` at line 155
+**Location**: `addon\components\ui-dropdown.js` at line 161
 
 ```js
       let keys = [];
@@ -31,11 +31,11 @@
 
 **Global**: `Ember.Logger`
 
-**Location**: `addon\mixins\base.js` at line 27
+**Location**: `addon\mixins\base.js` at line 35
 
 ```js
 
-    if (Ember.isBlank(this.getSemanticModuleName())) {
+    if (isBlank(this.getSemanticModuleName())) {
       return Ember.Logger.error('A module was not declared on semantic extended type');
     }
     this.set('_initialized', false);
@@ -45,7 +45,7 @@
 
 **Global**: `Ember.Logger`
 
-**Location**: `addon\mixins\base.js` at line 135
+**Location**: `addon\mixins\base.js` at line 143
 
 ```js
       module.call(this.getSemanticScope(), this._settings());
@@ -59,7 +59,7 @@
 
 **Global**: `Ember.Logger`
 
-**Location**: `addon\mixins\base.js` at line 166
+**Location**: `addon\mixins\base.js` at line 174
 
 ```js
       return module.apply(this.getSemanticScope(), arguments);
@@ -73,7 +73,7 @@
 
 **Global**: `Ember.Logger`
 
-**Location**: `addon\mixins\base.js` at line 199
+**Location**: `addon\mixins\base.js` at line 207
 
 ```js
     let moduleGlobal = this.getSemanticModuleGlobal();
