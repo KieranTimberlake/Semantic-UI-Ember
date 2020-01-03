@@ -1,6 +1,6 @@
 {
   "name": "semantic-ui-ember",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "The Official Semantic UI Addon for Ember applications",
   "keywords": [
     "ember-addon"
@@ -77,6 +77,6 @@
     "walk-sync": "^2.0.2"
   },
   "engines": {
-    "node": "12.13.1"
+    "node": ">=12"
   }
 }
